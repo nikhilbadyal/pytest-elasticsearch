@@ -12,14 +12,22 @@ from packaging.version import Version
 class NoopElasticsearch:  # pylint:disable=too-few-public-methods
     """No operation Elasticsearch executor mock."""
 
-    def __init__(self, host: str, port: int) -> None:
+    def __init__(
+        self, host: str, port: int, scheme: str, user: Optional[str], password: Optional[str]
+    ) -> None:
         """Initialize Elasticsearch executor mock.
 
         :param str host: hostname under which elasticsearch is available
         :param int port: port under which elasticsearch is available.
+        :param int scheme: url scheme. HTTP or HTTPS.
+        :param int user: user to use for connection
+        :param int password: password for the above user
         """
         self.host = host
         self.port = port
+        self.scheme = scheme
+        self.user = user
+        self.password = password
 
     @staticmethod
     def running() -> Literal[True]:

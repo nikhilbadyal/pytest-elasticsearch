@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Callable, Iterator, Optional
 
 import pytest
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, NotFoundError
 from elasticsearch import __version__ as elastic_version
 from mirakuru import ProcessExitedWithError
 from port_for import get_port
@@ -116,12 +116,19 @@ def elasticsearch_proc(
 
 
 def elasticsearch_noproc(
-    host: Optional[str] = None, port: Optional[int] = None
+    host: Optional[str] = None,
+    port: Optional[int] = None,
+    scheme: Optional[str] = None,
+    user: Optional[str] = None,
+    password: Optional[str] = None,
 ) -> Callable[[FixtureRequest], Iterator[NoopElasticsearch]]:
     """Elasticsearch noprocess factory.
 
     :param host: hostname
     :param port: exact port (e.g. '8000', 8000)
+    :param user: ES user
+    :param password: ES password
+    :param scheme: HTTP or HTTPS
     :returns: function which makes a elasticsearch process
     """
 
@@ -138,8 +145,14 @@ def elasticsearch_noproc(
         assert es_host
         es_port = port or config["port"] or 9300
         assert es_port
+        es_scheme = scheme or config["scheme"]
+        assert es_scheme
+        es_user = user or config["user"] or None
+        es_password = password or config["password"] or None
 
-        yield NoopElasticsearch(host=es_host, port=es_port)
+        yield NoopElasticsearch(
+            host=es_host, port=es_port, scheme=es_scheme, user=es_user, password=es_password
+        )
 
     return elasticsearch_noproc_fixture
 
@@ -157,15 +170,20 @@ def elasticsearch(process_fixture_name: str) -> Callable[[FixtureRequest], Itera
         if not process.running():
             process.start()
         client = Elasticsearch(
-            hosts=[{"host": process.host, "port": process.port, "scheme": "http"}],
+            hosts=[{"scheme": process.scheme, "host": process.host, "port": process.port}],
             request_timeout=30,
             verify_certs=False,
+            basic_auth=(process.user, process.password),
         )
         if elastic_version >= (8, 0, 0):
             client.options(ignore_status=400)
 
         yield client
         for index in client.indices.get_alias():
-            client.indices.delete(index=index)
+            try:
+                client.indices.delete(index=index, ignore_unavailable=True)
+                print("Deleted index '{}'".format(index))
+            except NotFoundError:
+                pass
 
     return elasticsearch_fixture

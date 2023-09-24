@@ -9,12 +9,15 @@ class ElasticsearchConfigDict(TypedDict):
     """Typed Config dictionary."""
 
     executable: Path
+    scheme: str
     host: str
     port: Optional[int]
     transport_tcp_port: Optional[int]
     cluster_name: str
     network_publish_host: str
     index_store_type: str
+    user: Optional[str]
+    password: Optional[str]
 
 
 def get_config(request: FixtureRequest) -> ElasticsearchConfigDict:
@@ -32,4 +35,7 @@ def get_config(request: FixtureRequest) -> ElasticsearchConfigDict:
         cluster_name=get_elasticsearch_option("cluster_name"),
         network_publish_host=get_elasticsearch_option("network_publish_host"),
         index_store_type=get_elasticsearch_option("index_store_type"),
+        user=get_elasticsearch_option("user"),
+        password=get_elasticsearch_option("password"),
+        scheme=get_elasticsearch_option("scheme"),
     )
