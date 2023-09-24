@@ -30,6 +30,8 @@ _help_index_store_type = "type of the index to use in the elasticsearch process 
 _help_network_publish_host = "network host to which elasticsearch publish to connect to cluseter"
 _help_elasticsearch_transport_tcp_port = "The tcp ansport port used \
     for internal communication between nodes within the cluster"
+_help_user = "Basic Auth Elasticsearch user"
+_help_password = "Basic Auth Elasticsearch Password"
 
 
 def pytest_addoption(parser: Parser) -> None:
@@ -110,6 +112,18 @@ def pytest_addoption(parser: Parser) -> None:
         action="store",
         dest="elasticsearch_transport_tcp_port",
         help=_help_elasticsearch_transport_tcp_port,
+    )
+    parser.addoption(
+        "--elasticsearch-user",
+        action="store",
+        dest="elasticsearch_user",
+        help=_help_user,
+    )
+    parser.addoption(
+        "--elasticsearch-password",
+        action="store",
+        dest="elasticsearch_password",
+        help=_help_password,
     )
 
 

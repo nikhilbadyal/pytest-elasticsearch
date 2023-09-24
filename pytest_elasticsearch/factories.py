@@ -116,12 +116,17 @@ def elasticsearch_proc(
 
 
 def elasticsearch_noproc(
-    host: Optional[str] = None, port: Optional[int] = None
+    host: Optional[str] = None,
+    port: Optional[int] = None,
+    user: Optional[str] = None,
+    password: Optional[str] = None,
 ) -> Callable[[FixtureRequest], Iterator[NoopElasticsearch]]:
     """Elasticsearch noprocess factory.
 
     :param host: hostname
     :param port: exact port (e.g. '8000', 8000)
+    :param user: ES user
+    :param password: ES password
     :returns: function which makes a elasticsearch process
     """
 
@@ -138,8 +143,10 @@ def elasticsearch_noproc(
         assert es_host
         es_port = port or config["port"] or 9300
         assert es_port
+        es_user = user or config["user"] or None
+        es_password = password or config["password"] or 9300
 
-        yield NoopElasticsearch(host=es_host, port=es_port)
+        yield NoopElasticsearch(host=es_host, port=es_port, user=es_user, password=es_password)
 
     return elasticsearch_noproc_fixture
 
@@ -160,6 +167,7 @@ def elasticsearch(process_fixture_name: str) -> Callable[[FixtureRequest], Itera
             hosts=[{"host": process.host, "port": process.port, "scheme": "http"}],
             request_timeout=30,
             verify_certs=False,
+            basic_auth=(process.user, process.password),
         )
         if elastic_version >= (8, 0, 0):
             client.options(ignore_status=400)
