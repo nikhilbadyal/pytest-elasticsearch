@@ -1,4 +1,5 @@
 """Configuration for pytest-elasticsearch."""
+
 from pathlib import Path
 from typing import Any, Optional, TypedDict
 
@@ -29,6 +30,7 @@ def get_config(request: FixtureRequest) -> ElasticsearchConfigDict:
 
     return ElasticsearchConfigDict(
         executable=get_elasticsearch_option("executable"),
+        scheme=get_elasticsearch_option("scheme"),
         host=get_elasticsearch_option("host"),
         port=get_elasticsearch_option("port"),
         transport_tcp_port=get_elasticsearch_option("transport_tcp_port"),
@@ -37,5 +39,4 @@ def get_config(request: FixtureRequest) -> ElasticsearchConfigDict:
         index_store_type=get_elasticsearch_option("index_store_type"),
         user=get_elasticsearch_option("user"),
         password=get_elasticsearch_option("password"),
-        scheme=get_elasticsearch_option("scheme"),
     )

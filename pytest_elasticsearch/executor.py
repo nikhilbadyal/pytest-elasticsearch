@@ -42,6 +42,7 @@ class ElasticSearchExecutor(HTTPExecutor):
     def __init__(
         self,
         executable: Path,
+        scheme: str,
         host: str,
         port: int,
         tcp_port: int,
@@ -52,6 +53,8 @@ class ElasticSearchExecutor(HTTPExecutor):
         network_publish_host: str,
         index_store_type: str,
         timeout: int,
+        user: str = "elastic",
+        password: Optional[str] = "elastic",
     ) -> None:  # pylint:disable=too-many-arguments
         """Initialize ElasticSearchExecutor.
 
@@ -73,6 +76,9 @@ class ElasticSearchExecutor(HTTPExecutor):
         self.executable = executable
         self.host = host
         self.port = port
+        self.user = user
+        self.password = password
+        self.scheme = scheme
         # TODO: rename to transport_port
         self.tcp_port = tcp_port
         self.pidfile = pidfile
@@ -83,7 +89,7 @@ class ElasticSearchExecutor(HTTPExecutor):
         self.index_store_type = index_store_type
         super().__init__(
             self._exec_command(),
-            f"http://{self.host}:{self.port}",
+            f"{self.scheme}://{self.host}:{self.port}",
             timeout=timeout,
         )
 

@@ -1,4 +1,5 @@
 """Pytest-elasticsearch tests."""
+
 from datetime import datetime
 from pathlib import Path
 
@@ -118,6 +119,7 @@ def test_version_extraction(output: str, expected_version: str) -> None:
     ):
         executor = ElasticSearchExecutor(
             executable=Path("elasticsearch"),
+            scheme="http",
             host="127.0.0.1",
             port=8888,
             tcp_port=8889,

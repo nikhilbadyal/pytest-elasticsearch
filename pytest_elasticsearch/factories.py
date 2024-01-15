@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Callable, Iterator, Optional
 
 import pytest
-from elasticsearch import Elasticsearch, NotFoundError
+from elasticsearch import Elasticsearch
 from elasticsearch import __version__ as elastic_version
 from mirakuru import ProcessExitedWithError
 from port_for import get_port
@@ -34,6 +34,7 @@ from pytest_elasticsearch.executor import ElasticSearchExecutor, NoopElasticsear
 
 def elasticsearch_proc(
     executable: Optional[Path] = None,
+    scheme: Optional[str] = None,
     host: Optional[str] = None,
     port: Optional[PortType] = -1,
     transport_tcp_port: Optional[PortType] = None,
@@ -44,6 +45,7 @@ def elasticsearch_proc(
     """Create elasticsearch process fixture.
 
     :param executable: elasticsearch's executable
+    :param scheme: scheme of the host, http or https
     :param host: host that the instance listens on
     :param port:
         exact port (e.g. '8000', 8000)
@@ -67,6 +69,7 @@ def elasticsearch_proc(
         """Elasticsearch process starting fixture."""
         config = get_config(request)
         elasticsearch_host = host or config["host"]
+        elasticsearch_scheme = scheme or config["scheme"]
         elasticsearch_executable = executable or config["executable"]
 
         elasticsearch_port = get_port(port) or get_port(config["port"])
@@ -91,6 +94,7 @@ def elasticsearch_proc(
 
         elasticsearch_executor = ElasticSearchExecutor(
             elasticsearch_executable,
+            elasticsearch_scheme,
             elasticsearch_host,
             elasticsearch_port,
             elasticsearch_transport_port,
@@ -180,10 +184,6 @@ def elasticsearch(process_fixture_name: str) -> Callable[[FixtureRequest], Itera
 
         yield client
         for index in client.indices.get_alias():
-            try:
-                client.indices.delete(index=index, ignore_unavailable=True)
-                print("Deleted index '{}'".format(index))
-            except NotFoundError:
-                pass
+            client.indices.delete(index=index)
 
     return elasticsearch_fixture
