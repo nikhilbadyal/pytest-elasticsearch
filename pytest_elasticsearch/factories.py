@@ -184,6 +184,6 @@ def elasticsearch(process_fixture_name: str) -> Callable[[FixtureRequest], Itera
 
         yield client
         for index in client.indices.get_alias():
-            client.indices.delete(index=index)
-
+            if not index.startswith('.'):  # Skip hidden indices
+                client.indices.delete(index=index)
     return elasticsearch_fixture
