@@ -1,5 +1,5 @@
 [project]
-name = "pytest-elasticsearch"
+name = "pytest-elasticsearch-test"
 version = "0.0.3"
 description = "Elasticsearch fixtures and fixture factories for Pytest."
 readme = "README.rst"
