@@ -3,6 +3,12 @@ CHANGELOG
 
 .. towncrier release notes start
 
+0.0.3 (2025-04-20)
+==================
+
+No significant changes.
+
+
 0.0.2 (2024-08-21)
 ==================
 
